@@ -2,9 +2,14 @@ Flexible Navigation
 ===================
 
 Flexible Navigation is a rework of the ROS Navigation stack into independent modules that
-interface with [FlexBE] compatible state implementations.  These allow a user to graphically chain together states in a state machine to essentially create their own navigation stack to suit any need.
+interface with [FlexBE] compatible state implementations.  These allow a user to
+graphically chain together states in a state machine to essentially
+create their own navigation stack to suit any need.
 
-This allows for supervisory and sliding autonomy within navigation, and better control over contingencies and recovery behaviors.
+This allows for supervisory and sliding autonomy within navigation, and better
+control over contingencies and recovery behaviors.
+
+The code makes use of the [FlexBE Behavior Engine] and [FlexBE UI].
 
 About
 -----
@@ -19,17 +24,20 @@ interfaces to [FlexBE] state implementations.
 Install
 -------
 
-A complete demonstration system is provided as part of the CHRISLab [Turtlebot Flexible Navigation] demonstration. Follow setup and operation directions there for an integrated demonstration.  The complete system is easily setup and built by following the installation directions at [CHRISLab Install].
+A complete demonstration system is provided as part of the CHRISLab [Turtlebot Flexible Navigation] demonstration.
+Follow setup and operation directions there for an integrated demonstration.  
+The complete system is easily setup and built by following the installation directions at [CHRISLab Install].
 
-The [Turtlebot Flexible Navigation] demonstration uses the SBPL lattice planner in a move_base like planning scheme.  An alternative demonstration at [Create Flexible Navigation] uses a three layer planning scheme to demonstrate the flexibility of the decoupled approach.
+The [Turtlebot Flexible Navigation] demonstration uses the SBPL lattice planner in a move_base like planning scheme.  
+An alternative demonstration uses a three layer planning scheme to demonstrate the flexibility of the decoupled approach.
 
-The Flexible Navigation system has been tested using the latest version of ROS Kinetic. You
-should first follow the [ROS Install Guide] and get that set up before proceeding.
+The Flexible Navigation system has been tested using the latest version of ROS Noetic.
+You should first follow the [ROS Install Guide] and get that set up before proceeding.
 
 License
 -------
 
-	Copyright (c) 2016-2019
+	Copyright (c) 2016-2023
 	Capable Humanitarian Robotics and Intelligent Systems Lab (CHRISLab)
 	Christopher Newport University
 
@@ -63,8 +71,10 @@ License
 	     POSSIBILITY OF SUCH DAMAGE.
 
 [FlexBE]: https://flexbe.github.io
+[FlexBE Behavior Engine]: https://github.com/FlexBE/flexbe_behavior_engine
+[FlexBE UI]: https://github.com/FlexBE/flexbe_app
+
 [move_base]: http://wiki.ros.org/move_base
-[ROS Install Guide]: http://wiki.ros.org/kinetic/Installation
+[ROS Install Guide]: http://wiki.ros.org/noetic/Installation
 [Turtlebot Flexible Navigation]: https://github.com/CNURobotics/chris_turtlebot_flexible_navigation
-[Create Flexible Navigation]: https://github.com/CNURobotics/chris_create_flexible_navigation
 [CHRISLab Install]: https://github.com/CNURobotics/chris_install

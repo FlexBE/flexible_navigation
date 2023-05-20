@@ -4,7 +4,7 @@
 	<description>
 		 flex_nav_flexbe_states provides a collection of FlexBE states used during the SSP Research
 	</description>
-	<maintainer email="justin.willis.13@cnu.edu">Justin Willis</maintainer>
+	<maintainer email="robotics@cnu.edu">David Conner</maintainer>
 	<license>BSD</license>
 
 	<url>http://ros.org/wiki/flexbe_states</url>
@@ -16,6 +16,8 @@
 	<run_depend>geometry_msgs</run_depend>
 	<run_depend>flexbe_msgs</run_depend>
 	<run_depend>flexbe_core</run_depend>
+
+	<build_depend>rostest</build_depend>
 
 	<export>
 	    <flexbe_states />

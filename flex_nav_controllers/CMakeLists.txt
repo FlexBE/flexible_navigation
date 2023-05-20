@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(flex_nav_controllers)
 
 find_package(catkin REQUIRED
@@ -17,7 +17,9 @@ find_package(catkin REQUIRED
 
 catkin_package(
 	CATKIN_DEPENDS
+		actionlib
 		actionlib_msgs
+		flex_nav_common
 		geometry_msgs
 		message_runtime
 		nav_core
@@ -35,8 +37,8 @@ include_directories(
 
 # flex_controller_follow_path node
 add_executable(${PROJECT_NAME}_follow_path_node
-	src/follow_path_node.cpp
 	src/follow_path.cpp
+	src/follow_path_node.cpp
 )
 add_dependencies(${PROJECT_NAME}_follow_path_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_follow_path_node
@@ -46,8 +48,8 @@ target_link_libraries(${PROJECT_NAME}_follow_path_node
 
 # flex_controller_follow_topic node
 add_executable(${PROJECT_NAME}_follow_topic_node
-	src/follow_topic_node.cpp
 	src/follow_topic.cpp
+	src/follow_topic_node.cpp
 )
 add_dependencies(${PROJECT_NAME}_follow_topic_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_follow_topic_node

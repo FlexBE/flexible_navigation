@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(flex_nav_flexbe_states)
 
 find_package(catkin REQUIRED)
@@ -15,8 +15,14 @@ catkin_python_setup()
 # DEPENDS - Non-catkin CMake projects that this project depends on
 # CFG_EXTRAS - Additional configuration options
 catkin_package(
-    INCLUDE_DIRS src
     LIBRARIES ${PROJECT_NAME})
 
 # install executables
-install(DIRECTORY src  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY launch  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY tests  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+# run tests
+if(CATKIN_ENABLE_TESTING)
+	find_package(rostest REQUIRED)
+	add_rostest(tests/run_rostest.test)
+endif()
