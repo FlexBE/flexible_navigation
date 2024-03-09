@@ -42,9 +42,11 @@ from flexbe_core.proxy import ProxyActionClient
 from nav2_msgs.action import SmoothPath
 from builtin_interfaces.msg import Duration
 
+
 class SmoothPathActionState(EventState):
     """
     Smooth a plan if one is available.
+
     smoother_server must be declared as a lifecycle node at launch.
     Start the smoother_server node from the launch file or the terminal with 'ros2 run nav2_smoother smoother_server'
 
@@ -61,6 +63,7 @@ class SmoothPathActionState(EventState):
     """
 
     def __init__(self, smoother_topic):
+        """Initialize state."""
         super().__init__(outcomes=['smoothed', 'failed'], input_keys=['plan'], output_keys=['smooth_path'])
 
         ProxyActionClient.initialize(SmoothPathActionState._node)
@@ -69,8 +72,8 @@ class SmoothPathActionState(EventState):
         self._client = ProxyActionClient({self._action_topic: SmoothPath})
         self._return = None
 
-
     def execute(self, userdata):
+        """Execute each tic of state machine."""
         if self._client.has_result(self._action_topic):
             result = self._client.get_result(self._action_topic)
 
@@ -84,8 +87,8 @@ class SmoothPathActionState(EventState):
 
         return self._return
 
-
     def on_enter(self, userdata):
+        """Execute on entering state."""
         self._return = None
         result = SmoothPath.Goal(path=userdata.plan)
         result.max_smoothing_duration = Duration()
@@ -99,8 +102,8 @@ class SmoothPathActionState(EventState):
             userdata.smooth_path = None
             return 'failed'
 
-
     def on_exit(self, userdata):
+        """Execute when exiting state."""
         if self._action_topic in ProxyActionClient._result:
             ProxyActionClient._result[self._action_topic] = None
 
