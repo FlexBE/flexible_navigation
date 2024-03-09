@@ -2,6 +2,12 @@
 Changelog for package flex_nav_flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2024-03-09)
+------------------
+* flake8, pycodestyle cleanup
+* updates for ROS 2 Iron
+* add smooth path action state
+
 1.1.0 (2023-07-14)
 ------------------
 * flake8, pylint, cpplint, copyright cleanup

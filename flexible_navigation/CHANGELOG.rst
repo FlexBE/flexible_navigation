@@ -2,6 +2,9 @@
 Changelog for package flexible_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2024-03-09)
+------------------
+
 1.1.0 (2023-07-14)
 ------------------
 * flake8, pylint, cpplint, copyright cleanup

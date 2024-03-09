@@ -2,6 +2,11 @@
 Changelog for package flex_nav_planners
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2024-03-09)
+------------------
+* updates for ROS 2 Iron
+* add smooth path action state
+
 1.1.0 (2023-07-14)
 ------------------
 * Add smoother to planner nodes based on Nav2 simple smoother, but without external subscription; clean up

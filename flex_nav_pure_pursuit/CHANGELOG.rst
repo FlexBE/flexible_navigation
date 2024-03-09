@@ -2,6 +2,9 @@
 Changelog for package flex_nav_pure_pursuit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2024-03-09)
+------------------
+
 1.1.0 (2023-07-14)
 ------------------
 * update pure pursuit python with transform handling; stop on failed
