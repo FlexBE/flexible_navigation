@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ###############################################################################
-#  Copyright (c) 2016-2023
+#  Copyright (c) 2023-2024
 #  Capable Humanitarian Robotics and Intelligent Systems Lab (CHRISLab)
 #  Christopher Newport University
 #
@@ -35,79 +35,70 @@
 #       POSSIBILITY OF SUCH DAMAGE.
 ###############################################################################
 
+from unittest import result
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
-from flex_nav_common.action import GetPath
+from nav2_msgs.action import SmoothPath
+from builtin_interfaces.msg import Duration
 
-
-class GetPathState(EventState):
+class SmoothPathActionState(EventState):
     """
-    Create a plan to reach the desired goal point.
+    Smooth a plan if one is available.
+    smoother_server must be declared as a lifecycle node at launch.
+    Start the smoother_server node from the launch file or the terminal with 'ros2 run nav2_smoother smoother_server'
 
-    -- planner_topic    String          The planner talk to
+    -- smoother_topic   String      The smoother to talk to
 
-    ># goal             PoseStamped     Desired PoseStamped goal
+    ># path             Path        Path to be smoothed
 
-    #> plan             Path            The plan
+    #> smooth_path      Path        The smoothed path
 
-    <= planned         Successfully created a plan
-    <= empty           The generated plan is empty
-    <= failed          Failed to create a plan
+    <= smoothed         Successfully smoothed a path
+    <= empty            The plan is empty
+    <= failed           Failed to create a plan
 
     """
 
-    def __init__(self, planner_topic):
-        super().__init__(outcomes=['planned', 'empty', 'failed'], input_keys=['goal'], output_keys=['plan'])
+    def __init__(self, smoother_topic):
+        super().__init__(outcomes=['smoothed', 'failed'], input_keys=['plan'], output_keys=['smooth_path'])
 
-        ProxyActionClient.initialize(GetPathState._node)
+        ProxyActionClient.initialize(SmoothPathActionState._node)
 
-        self._action_topic = planner_topic
-        self._client = ProxyActionClient({self._action_topic: GetPath})
+        self._action_topic = smoother_topic
+        self._client = ProxyActionClient({self._action_topic: SmoothPath})
         self._return = None
+
 
     def execute(self, userdata):
         if self._client.has_result(self._action_topic):
             result = self._client.get_result(self._action_topic)
 
-            # Clear result so we can avoid spam if blocked by autonomy level
             ProxyActionClient._result[self._action_topic] = None
 
-            # Set the appropriate return value
-            if result.code == 0:
-                Logger.loginfo('%s  Got a plan!' % (self.name))
-                userdata.plan = result.plan
-                self._return = 'planned'
-
-            elif result.code == 1:
-                Logger.logerr('%s    Received an empty plan' % (self.name))
-                userdata.plan = None
-                self._return = 'empty'
-
-            elif result.code == 2:
-                Logger.logerr('%s    Failed to create a plan' % (self.name))
-                userdata.plan = None
-                self._return = 'failed'
-
+            if result.was_completed is True:
+                userdata.smooth_path = result.path
+                self._return = 'smoothed'
             else:
-                Logger.logerr('%s    Unknown error' % (self.name))
-                userdata.plan = None
                 self._return = 'failed'
 
-        # Return stored value in case we are blocked
         return self._return
+
 
     def on_enter(self, userdata):
         self._return = None
-        result = GetPath.Goal(pose=userdata.goal)
+        result = SmoothPath.Goal(path=userdata.plan)
+        result.max_smoothing_duration = Duration()
+        result.max_smoothing_duration.sec = 1
 
         try:
             Logger.loginfo('%s    Requesting a plan' % (self.name))
             self._client.send_goal(self._action_topic, result)
         except Exception as e:
             Logger.logwarn('%s    Failed to send plan request: %s' % (self.name, str(e)))
-            userdata.plan = None
+            userdata.smooth_path = None
             return 'failed'
+
 
     def on_exit(self, userdata):
         if self._action_topic in ProxyActionClient._result:

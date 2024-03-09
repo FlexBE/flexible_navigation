@@ -64,6 +64,7 @@ def generate_launch_description():
     testcases += join(path, "rotate_angle_state.test") + "\n"
     testcases += join(path, "set_indice_state.test") + "\n"
     testcases += join(path, "set_pose_state.test") + "\n"
+    testcases += join(path, "smooth_path_action_state.test") + "\n"
     testcases += join(path, "timed_stop_state.test") + "\n"
     testcases += join(path, "timed_twist_state.test") + "\n"
 

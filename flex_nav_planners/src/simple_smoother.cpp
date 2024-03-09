@@ -247,3 +247,4 @@ void SimpleSmoother::setFieldByDim(
 }
 
 }  // namespace flex_nav
+

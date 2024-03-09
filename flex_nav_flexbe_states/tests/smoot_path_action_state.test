@@ -1,0 +1,10 @@
+path: flex_nav_flexbe_states.smoot_path_action_state
+class: SmootPathActionState
+
+import_only: true
+
+params:
+    smoother_topic:     'smooth_path_topic'
+
+outcome:
+    done
