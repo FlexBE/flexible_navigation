@@ -5,7 +5,7 @@ from glob import glob
 PACKAGE_NAME = 'flex_nav_flexbe_states'
 
 setup(
-    name=package_name,
+    name=PACKAGE_NAME,
     version='0.3.0',
     packages=find_packages(),
     data_files=[

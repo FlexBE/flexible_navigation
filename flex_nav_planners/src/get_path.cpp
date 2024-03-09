@@ -61,7 +61,8 @@ GetPath::GetPath(const rclcpp::NodeOptions & options)
   declare_parameter("smoother_type", rclcpp::ParameterValue(smoother_type_));
 
   costmap_ros_ = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "global_costmap", std::string{get_namespace()}, "global_costmap");
+    "global_costmap", std::string{get_namespace()}, "global_costmap",
+    this->get_parameter("use_sim_time").get_value<bool>());
 
   costmap_thread_ = std::make_unique<nav2_util::NodeThread>(costmap_ros_);
 }

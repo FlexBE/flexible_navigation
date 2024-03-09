@@ -72,7 +72,8 @@ FollowTopic::FollowTopic(const rclcpp::NodeOptions & options)
   get_parameter("costmap_name", costmap_name_);
 
   costmap_ros_ = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    costmap_name_, std::string{get_namespace()}, costmap_name_);
+    costmap_name_, std::string{get_namespace()}, costmap_name_,
+    this->get_parameter("use_sim_time").get_value<bool>());
 
   costmap_thread_ = std::make_unique<nav2_util::NodeThread>(costmap_ros_);
 }

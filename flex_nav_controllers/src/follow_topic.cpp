@@ -36,7 +36,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
-#include "nav2_core/exceptions.hpp"
+#include "nav2_core/controller_exceptions.hpp"
 #include "nav_2d_utils/conversions.hpp"
 #include "nav_2d_utils/tf_help.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -75,7 +75,8 @@ FollowTopic::FollowTopic(const rclcpp::NodeOptions & options)
   declare_parameter("velocity_stamp_publisher", rclcpp::ParameterValue(""));
 
   costmap_ros_ = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "local_costmap", std::string{get_namespace()}, "local_costmap");
+    "local_costmap", std::string{get_namespace()}, "local_costmap",
+    this->get_parameter("use_sim_time").get_value<bool>());
 
   costmap_thread_ = std::make_unique<nav2_util::NodeThread>(costmap_ros_);
 }
@@ -267,7 +268,7 @@ nav2_util::CallbackReturn FollowTopic::on_shutdown(const rclcpp_lifecycle::State
 void FollowTopic::setPlannerPath(const nav_msgs::msg::Path & path)
 {
   if (path.poses.empty()) {
-    throw nav2_core::PlannerException("Invalid path, Path is empty.");
+    throw nav2_core::InvalidPath("Invalid path, Path is empty.");
   }
   controller_->setPlan(path);
 
@@ -314,7 +315,7 @@ void FollowTopic::publishZeroVelocity()
 void FollowTopic::computeAndPublishVelocity(geometry_msgs::msg::PoseStamped & pose)
 {
   if (!progress_checker_->check(pose)) {
-    throw nav2_core::PlannerException("Failed to make progress");
+    throw nav2_core::ControllerException("Failed to make progress");
   }
 
   nav_2d_msgs::msg::Twist2D twist = odom_sub_->getTwist();

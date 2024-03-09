@@ -38,7 +38,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
-#include "nav2_core/exceptions.hpp"
+#include "nav2_core/controller_exceptions.hpp"
 #include "nav_2d_utils/conversions.hpp"
 #include "nav_2d_utils/tf_help.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -75,7 +75,8 @@ FollowPath::FollowPath(const rclcpp::NodeOptions & options)
   declare_parameter("velocity_stamp_publisher", rclcpp::ParameterValue(""));
 
   costmap_ros_ = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "local_costmap", std::string{get_namespace()}, "local_costmap");
+    "local_costmap", std::string{get_namespace()}, "local_costmap",
+    this->get_parameter("use_sim_time").get_value<bool>());
 
   costmap_thread_ = std::make_unique<nav2_util::NodeThread>(costmap_ros_);
 }
@@ -301,7 +302,7 @@ void FollowPath::publishZeroVelocity()
 void FollowPath::setPlannerPath(const nav_msgs::msg::Path & path)
 {
   if (path.poses.empty()) {
-    throw nav2_core::PlannerException("Invalid path, Path is empty.");
+    throw nav2_core::InvalidPath("Invalid path, Path is empty.");
   }
   controller_->setPlan(path);
 
@@ -325,11 +326,11 @@ void FollowPath::computeAndPublishVelocity()
   geometry_msgs::msg::PoseStamped pose;
 
   if (!getRobotPose(pose)) {
-    throw nav2_core::PlannerException("Failed to obtain robot pose");
+    throw nav2_core::ControllerException("Failed to obtain robot pose");
   }
 
   if (!progress_checker_->check(pose)) {
-    throw nav2_core::PlannerException("Failed to make progress");
+    throw nav2_core::ControllerException("Failed to make progress");
   }
 
   nav_2d_msgs::msg::Twist2D twist = getThresholdedTwist(odom_sub_->getTwist());
@@ -490,7 +491,7 @@ void FollowPath::execute()
           get_logger(), "Control loop missed its desired rate of %.4fHz", controller_frequency_);
       }
     }
-  } catch (nav2_core::PlannerException & e) {
+  } catch (nav2_core::ControllerException & e) {
     RCLCPP_ERROR(get_logger(), e.what());
     publishZeroVelocity();
     std::shared_ptr<flex_nav_common::action::FollowPath::Result> abort =
