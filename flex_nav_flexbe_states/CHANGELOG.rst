@@ -2,6 +2,9 @@
 Changelog for package flex_nav_flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2025-03-24)
+------------------
+
 1.1.1 (2024-03-09)
 ------------------
 * flake8, pycodestyle cleanup

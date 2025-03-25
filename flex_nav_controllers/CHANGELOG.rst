@@ -2,6 +2,11 @@
 Changelog for package flex_nav_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2025-03-24)
+------------------
+* update path goal pose each step for consistent goal check
+* centralize pose handling for goal checking and control calcs
+
 1.1.1 (2024-03-09)
 ------------------
 * updates for ROS 2 Iron

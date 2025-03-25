@@ -2,6 +2,11 @@
 Changelog for package flex_nav_planners
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2025-03-24)
+------------------
+* update default orientations before smoothing to avoid path reversed flag
+* update for new createPlan method signature
+
 1.1.1 (2024-03-09)
 ------------------
 * updates for ROS 2 Iron
