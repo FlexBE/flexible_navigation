@@ -62,7 +62,8 @@ FollowPath::FollowPath(const rclcpp::NodeOptions & options)
   default_id_{"FollowPath"},
   default_type_{"dwb_core::DWBLocalPlanner"},
   running_(false),
-  name_("follow_path")
+  name_("follow_path"),
+  transform_tolerance_(rclcpp::Duration::from_seconds(0.1))
 {
   using namespace std::placeholders;
 
@@ -306,19 +307,13 @@ void FollowPath::setPlannerPath(const nav_msgs::msg::Path & path)
   }
   controller_->setPlan(path);
 
-  auto end_pose = path.poses.back();
-  end_pose.header.frame_id = path.header.frame_id;
-  rclcpp::Duration tolerance =
-    rclcpp::Duration::from_nanoseconds(costmap_ros_->getTransformTolerance() * 1e9);
-
-  nav_2d_utils::transformPose(
-    costmap_ros_->getTfBuffer(), costmap_ros_->getGlobalFrameID(), end_pose, end_pose, tolerance);
-  goal_checker_->reset();
+  goal_pose_ = path.poses.back();
+  goal_pose_.header.frame_id = path.header.frame_id;
+  transform_tolerance_ = rclcpp::Duration::from_nanoseconds(costmap_ros_->getTransformTolerance() * 1e9);
 
   RCLCPP_DEBUG(
-    get_logger(), "Path end point is (%.3f, %.3f)", end_pose.pose.position.x,
-    end_pose.pose.position.y);
-  end_pose_ = end_pose.pose;
+    get_logger(), "Path end point is (%.3f, %.3f)", goal_pose_.pose.position.x,
+    goal_pose_.pose.position.y);
 }
 
 void FollowPath::computeAndPublishVelocity(geometry_msgs::msg::PoseStamped& pose)
@@ -339,15 +334,16 @@ void FollowPath::computeAndPublishVelocity(geometry_msgs::msg::PoseStamped& pose
   publishVelocity(cmd_vel_2d, pose);
 }
 
-void FollowPath::updateGlobalPath()
-{
-  if (fp_server_->is_cancel_requested()) {
-    RCLCPP_INFO(get_logger(), "Passing new path to controller.");
-    auto goal = fp_server_->accept_pending_goal();
-    std::string current_controller;
-    setPlannerPath(goal->path);
-  }
-}
+// void FollowPath::updateGlobalPath()
+// {
+//   if (fp_server_->is_cancel_requested()) {
+//     RCLCPP_INFO(get_logger(), "Passing new path to controller.");
+//     auto goal = fp_server_->accept_pending_goal();
+//     std::string current_controller;
+//     setPlannerPath(goal->path);
+//   }
+
+// }
 
 void FollowPath::publishVelocity(
   const geometry_msgs::msg::TwistStamped & velocity, geometry_msgs::msg::PoseStamped robotPose)
@@ -383,7 +379,8 @@ bool FollowPath::isGoalReached(const geometry_msgs::msg::PoseStamped & pose)
 {
   nav_2d_msgs::msg::Twist2D twist = odom_sub_->getTwist();
   geometry_msgs::msg::Twist velocity = nav_2d_utils::twist2Dto3D(twist);
-  return goal_checker_->isGoalReached(pose.pose, end_pose_, velocity);
+
+  return goal_checker_->isGoalReached(pose.pose, transformed_goal_pose_.pose, velocity);
 }
 
 bool FollowPath::getRobotPose(geometry_msgs::msg::PoseStamped & pose)
@@ -459,10 +456,24 @@ void FollowPath::execute()
         return;
       }
 
-      updateGlobalPath();
+      // update the global path
+      if (fp_server_->is_cancel_requested()) {
+        RCLCPP_INFO(get_logger(), "Passing new path to controller.");
+        auto goal = fp_server_->accept_pending_goal();
+        std::string current_controller;
+        setPlannerPath(goal->path);
+      }
 
+      // Update the final goal pose based on latest mapping for this time step
+      nav_2d_utils::transformPose(
+          costmap_ros_->getTfBuffer(),
+          costmap_ros_->getGlobalFrameID(),
+          goal_pose_, transformed_goal_pose_,
+          transform_tolerance_);
+      goal_checker_->reset();
+
+      // Get the current robot pose for this time step
       geometry_msgs::msg::PoseStamped pose;
-
       if (!getRobotPose(pose)) {
         RCLCPP_INFO(get_logger(), "[%s] failed to get pose - cannot check isGoalReached!", name_.c_str());
         throw nav2_core::ControllerException("Failed to get current robot pose");

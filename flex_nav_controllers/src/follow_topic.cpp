@@ -59,7 +59,8 @@ FollowTopic::FollowTopic(const rclcpp::NodeOptions & options)
   running_(false),
   name_("follow_topic"),
   current_path_ptr_(nullptr),
-  latest_path_ptr_(nullptr)
+  latest_path_ptr_(nullptr),
+  transform_tolerance_(rclcpp::Duration::from_seconds(0.1))
 {
   using namespace std::placeholders;
 
@@ -272,19 +273,15 @@ void FollowTopic::setPlannerPath(const nav_msgs::msg::Path & path)
   }
   controller_->setPlan(path);
 
-  auto end_pose = path.poses.back();
-  end_pose.header.frame_id = path.header.frame_id;
-  rclcpp::Duration tolerance =
+  goal_pose_ = path.poses.back();
+  goal_pose_.header.frame_id = path.header.frame_id;
+
+  transform_tolerance_ =
     rclcpp::Duration::from_nanoseconds(costmap_ros_->getTransformTolerance() * 1e9);
 
-  nav_2d_utils::transformPose(
-    costmap_ros_->getTfBuffer(), costmap_ros_->getGlobalFrameID(), end_pose, end_pose, tolerance);
-  goal_checker_->reset();
-
   RCLCPP_DEBUG(
-    get_logger(), "Path end point is (%.2f, %.2f)", end_pose.pose.position.x,
-    end_pose.pose.position.y);
-  end_pose_ = end_pose.pose;
+    get_logger(), "Path end point is (%.2f, %.2f)", goal_pose_.pose.position.x,
+    goal_pose_.pose.position.y);
 }
 
 void FollowTopic::publishZeroVelocity()
@@ -356,7 +353,7 @@ bool FollowTopic::isGoalReached(const geometry_msgs::msg::PoseStamped & pose)
 {
   nav_2d_msgs::msg::Twist2D twist = odom_sub_->getTwist();
   geometry_msgs::msg::Twist velocity = nav_2d_utils::twist2Dto3D(twist);
-  return goal_checker_->isGoalReached(pose.pose, end_pose_, velocity);
+  return goal_checker_->isGoalReached(pose.pose, transformed_goal_pose_.pose, velocity);
 }
 
 bool FollowTopic::getRobotPose(geometry_msgs::msg::PoseStamped & pose)
@@ -459,6 +456,16 @@ void FollowTopic::execute()
            current_path_ptr_->header.stamp == latest_path_ptr_->header.stamp) {
       RCLCPP_DEBUG(get_logger(), "[%s] Following path from path", name_.c_str());
 
+
+      // Update the final goal pose based on latest mapping for this time step
+      nav_2d_utils::transformPose(
+          costmap_ros_->getTfBuffer(),
+          costmap_ros_->getGlobalFrameID(),
+          goal_pose_, transformed_goal_pose_,
+          transform_tolerance_);
+      goal_checker_->reset();
+
+      // Get the current robot pose for this time step
       if (!getRobotPose(robot_pose)) {
         // failed to get current robot pose
         RCLCPP_INFO(

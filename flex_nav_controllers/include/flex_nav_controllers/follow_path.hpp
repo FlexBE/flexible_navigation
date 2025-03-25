@@ -152,11 +152,13 @@ private:
      * @param pose current pose of the robot
      */
   void computeAndPublishVelocity(geometry_msgs::msg::PoseStamped & pose);
-  /**
-     * @brief Calls setPlannerPath method with an updated path received from
-     * action server
-     */
-  void updateGlobalPath();
+
+   //   /**
+   //      * @brief Calls setPlannerPath method with an updated path received from
+   //      * action server
+   //      */
+   //  void updateGlobalPath();
+
   /**
      * @brief Calls velocity publisher to publish the velocity on "cmd_vel" topic
      * @param velocity Twist velocity to be published
@@ -254,7 +256,9 @@ private:
   double min_y_velocity_threshold_;
   double min_theta_velocity_threshold_;
 
-  geometry_msgs::msg::Pose end_pose_;
+  geometry_msgs::msg::PoseStamped goal_pose_;
+  geometry_msgs::msg::PoseStamped transformed_goal_pose_;
+  rclcpp::Duration transform_tolerance_;
 
   rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
 

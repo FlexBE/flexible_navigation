@@ -248,7 +248,10 @@ private:
 
   nav_msgs::msg::Path::SharedPtr current_path_ptr_;
   nav_msgs::msg::Path::SharedPtr latest_path_ptr_;
-  geometry_msgs::msg::Pose end_pose_;
+
+  geometry_msgs::msg::PoseStamped goal_pose_;
+  geometry_msgs::msg::PoseStamped transformed_goal_pose_;
+  rclcpp::Duration transform_tolerance_;
 
   std::string name_;
 };
