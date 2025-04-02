@@ -78,6 +78,7 @@ class GetPathByNameActionServer(Node):
 
         self._max_distance  = self.get_parameter('max_distance').get_parameter_value().double_value
         self._yaml_file = self.get_parameter('yaml_paths_file').get_parameter_value().string_value
+        self.get_logger().info(f"Set up GetPathByName action server with yaml file='{self._yaml_file}' ...")
         if self._yaml_file != "":
             paths = self.load_paths_from_yaml(self._yaml_file)
             if paths:
@@ -142,19 +143,20 @@ class GetPathByNameActionServer(Node):
     def load_paths_from_yaml(self, yaml_file):
         path_data = None
         try:
+            self.get_logger().info(f"Loading paths from '{yaml_file}' ...")
             with open(yaml_file, "rt") as fin:
                 path_data = yaml.safe_load(fin)
         except yaml.YAMLError as exc:
-            self.get_logger().error(f'Failed to load yaml data for paths by name from {yaml_file}')
+            self.get_logger().error(f"Failed to load yaml data for paths by name from '{yaml_file}'")
             self.get_logger().error(str(exc))
             return None
         except (IOError, OSError):
-            self.get_logger().error(f'Failed to open paths by name from {yaml_file}')
+            self.get_logger().error(f"Failed to open paths by name from '{yaml_file}'")
             return None
 
         if path_data:
             try:
-                self.get_logger().info(f'Process paths by name from {yaml_file} ... ')
+                self.get_logger().info(f"Process paths by name from '{yaml_file}' ... ")
                 paths_by_name = {}
                 for name, data in path_data.items():
 
